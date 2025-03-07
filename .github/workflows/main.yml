@@ -21,7 +21,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jar-artifact
-          path: target/travel-app-0.0.1-SNAPSHOT.jar
+          path: java -jar target/logcheck-0.0.1-SNAPSHOT.jar
 
   deploy:
     runs-on: ubuntu-latest
