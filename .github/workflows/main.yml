@@ -17,7 +17,6 @@ jobs:
       - name: Build Application
         run: |
           mvn clean install
-          mvn install
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -38,6 +37,9 @@ jobs:
       JAVA_CMD: "java -jar"
 
     steps:
+      - name: Install Required Packages
+        run: apk add --no-cache openssh-client lsof
+
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -47,20 +49,18 @@ jobs:
           name: jar-artifact
           path: target
 
-      - name: Install SSH Client
-        run: apk add --no-cache openssh-client
-
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
 
-      - name: Stop Existing Application
+      - name: Stop Existing Application (If Running)
         run: |
-          ssh $SERVER_USER@$SERVER_HOST <<EOF
-          if lsof -t -i:8081 > /dev/null; then
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
+          if command -v lsof &> /dev/null && lsof -t -i:8081 > /dev/null; then
             echo "Stopping application on port 8081..."
             kill -9 \$(lsof -t -i:8081)
           else
@@ -71,11 +71,11 @@ jobs:
           EOF
 
       - name: Deploy New JAR
-        run: scp target/$JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
+        run: scp -o StrictHostKeyChecking=no target/$JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
 
       - name: Start Application
         run: |
-          ssh $SERVER_USER@$SERVER_HOST <<EOF
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
           nohup $JAVA_CMD $DEPLOY_DIR/$JAR_FILE --server.port=8081 > $DEPLOY_DIR/app.log 2>&1 &
           echo "Application successfully started on port 8081."
           EOF
