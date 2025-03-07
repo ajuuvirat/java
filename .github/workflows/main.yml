@@ -47,6 +47,9 @@ jobs:
           name: jar-artifact
           path: target
 
+      - name: Install SSH Client
+        run: apk add --no-cache openssh-client
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
