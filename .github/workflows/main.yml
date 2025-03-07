@@ -1,4 +1,4 @@
-name: Java CI/CD Pipeline
+name: Java CI/CD Deployment
 
 on:
   push:
@@ -6,28 +6,9 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.8-eclipse-temurin-21
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Build Application
-        run: mvn clean install
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: jar-artifact
-          path: target/logcheck-0.0.1-SNAPSHOT.jar
-
   deploy:
     runs-on: ubuntu-latest
-    needs: build
-    container:
-      image: eclipse-temurin:21-jre-alpine
+
     env:
       DEPLOY_DIR: "/var/www/html/"
       JAR_FILE: "logcheck-0.0.1-SNAPSHOT.jar"
@@ -36,29 +17,23 @@ jobs:
       JAVA_CMD: "java -jar"
 
     steps:
-      - name: Install Required Packages
-        run: apk add --no-cache openssh-client lsof
-
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: jar-artifact
-          path: target
+      - name: Install SSH Client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client lsof
 
-      - name: Set up SSH
+      - name: Set up SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "SSH setup complete."
 
       - name: Stop Existing Application (If Running)
         run: |
-          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER_HOST <<EOF
           if command -v lsof &> /dev/null && lsof -t -i:8081 > /dev/null; then
             echo "Stopping application on port 8081..."
             kill -9 \$(lsof -t -i:8081)
@@ -69,12 +44,12 @@ jobs:
           mkdir -p $DEPLOY_DIR
           EOF
 
-      - name: Deploy New JAR
-        run: scp -o StrictHostKeyChecking=no target/$JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
+      - name: Upload JAR to Server
+        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
 
       - name: Start Application
         run: |
-          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER_HOST <<EOF
           nohup $JAVA_CMD $DEPLOY_DIR/$JAR_FILE --server.port=8081 > $DEPLOY_DIR/app.log 2>&1 &
           echo "Application successfully started on port 8081."
           EOF
