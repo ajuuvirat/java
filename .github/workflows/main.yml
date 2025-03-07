@@ -40,7 +40,7 @@ jobs:
       DEPLOY_DIR: "/var/www/"
       JAR_FILE: "logcheck-0.0.1-SNAPSHOT.jar"
       SERVER_USER: "root"
-      SERVER_HOST: "64.227.145.190"
+      SERVER_HOST: "165.22.220.122"
       JAVA_CMD: "java -jar"
 
     steps:
