@@ -17,11 +17,20 @@ jobs:
       - name: Build Application
         run: mvn clean install -DskipTests
 
+      - name: Verify Build Output
+        run: |
+          if [ -f target/travel-app-0.0.1-SNAPSHOT.jar ]; then
+            echo "Build successful, proceeding to upload artifact."
+          else
+            echo "Build failed or JAR file missing. Exiting."
+            exit 1
+          fi
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: jar-artifact
-          path: java -jar target/logcheck-0.0.1-SNAPSHOT.jar
+          path: target/logcheck-0.0.1-SNAPSHOT.jar
 
   deploy:
     runs-on: ubuntu-latest
@@ -30,7 +39,7 @@ jobs:
       image: eclipse-temurin:21-jre-alpine
     env:
       DEPLOY_DIR: "/var/www/html/"
-      JAR_FILE: "travel-app-0.0.1-SNAPSHOT.jar"
+      JAR_FILE: "target/logcheck-0.0.1-SNAPSHOT.jar"
       SERVER_USER: "root"
       SERVER_HOST: "64.227.145.190"
       JAVA_CMD: "mvn spring-boot:run"
@@ -40,10 +49,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Artifact
+        id: download
         uses: actions/download-artifact@v4
         with:
           name: jar-artifact
           path: target
+
+      - name: Check if Artifact Exists
+        run: |
+          if [ -f target/$JAR_FILE ]; then
+            echo "Artifact found, proceeding with deployment."
+          else
+            echo "Artifact not found, deploying latest available version."
+            ssh $SERVER_USER@$SERVER_HOST "ls -t $DEPLOY_DIR | head -n 1" > latest_file
+            export JAR_FILE=$(cat latest_file)
+          fi
 
       - name: Set up SSH
         run: |
@@ -66,7 +86,12 @@ jobs:
           EOF
 
       - name: Deploy New JAR
-        run: scp target/$JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
+        run: |
+          if [ -f target/$JAR_FILE ]; then
+            scp target/$JAR_FILE $SERVER_USER@$SERVER_HOST:"$DEPLOY_DIR/"
+          else
+            echo "Using latest deployed file: $JAR_FILE"
+          fi
 
       - name: Start Application
         run: |
