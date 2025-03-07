@@ -1,0 +1,22 @@
+2025-03-03 18:39:24 - Starting LogcheckApplication using Java 21.0.1 with PID 38484 (/Users/thanikaivelp/Desktop/logcheck/target/classes started by thanikaivelp in /Users/thanikaivelp/Desktop/logcheck)
+2025-03-03 18:39:24 - No active profile set, falling back to 1 default profile: "default"
+2025-03-03 18:39:25 - Tomcat initialized with port 8081 (http)
+2025-03-03 18:39:25 - Starting service [Tomcat]
+2025-03-03 18:39:25 - Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-03-03 18:39:25 - Initializing Spring embedded WebApplicationContext
+2025-03-03 18:39:25 - Root WebApplicationContext: initialization completed in 892 ms
+2025-03-03 18:39:26 - Tomcat started on port 8081 (http) with context path '/'
+2025-03-03 18:39:26 - Started LogcheckApplication in 1.818 seconds (process running for 2.173)
+2025-03-03 18:39:36 - Commencing graceful shutdown. Waiting for active requests to complete
+2025-03-03 18:39:37 - Graceful shutdown complete
+2025-03-03 18:39:45 - Starting LogcheckApplication using Java 21.0.1 with PID 38512 (/Users/thanikaivelp/Desktop/logcheck/target/classes started by thanikaivelp in /Users/thanikaivelp/Desktop/logcheck)
+2025-03-03 18:39:45 - No active profile set, falling back to 1 default profile: "default"
+2025-03-03 18:39:46 - Tomcat initialized with port 8081 (http)
+2025-03-03 18:39:46 - Starting service [Tomcat]
+2025-03-03 18:39:46 - Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-03-03 18:39:46 - Initializing Spring embedded WebApplicationContext
+2025-03-03 18:39:46 - Root WebApplicationContext: initialization completed in 966 ms
+2025-03-03 18:39:47 - Tomcat started on port 8081 (http) with context path '/'
+2025-03-03 18:39:47 - Started LogcheckApplication in 1.927 seconds (process running for 2.276)
+2025-03-03 18:39:58 - Commencing graceful shutdown. Waiting for active requests to complete
+2025-03-03 18:39:58 - Graceful shutdown complete
