@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Application
-        run: mvn clean package -DskipTests
+        run: mvn clean install -DskipTests
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jar-artifact
           path: target/travel-app-0.0.1-SNAPSHOT.jar
@@ -30,17 +30,17 @@ jobs:
       image: eclipse-temurin:21-jre-alpine
     env:
       DEPLOY_DIR: "/var/www/html/"
-      JAR_FILE: "logcheck-app-0.0.1-SNAPSHOT.jar"
+      JAR_FILE: "travel-app-0.0.1-SNAPSHOT.jar"
       SERVER_USER: "root"
       SERVER_HOST: "64.227.145.190"
-      JAVA_CMD: "java -jar"
+      JAVA_CMD: "mvn spring-boot:run"
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jar-artifact
           path: target
@@ -71,6 +71,7 @@ jobs:
       - name: Start Application
         run: |
           ssh $SERVER_USER@$SERVER_HOST <<EOF
-          nohup $JAVA_CMD $DEPLOY_DIR/$JAR_FILE --server.port=8081 > $DEPLOY_DIR/app.log 2>&1 &
-          echo "Application successfully started on port 8081."
+          cd $DEPLOY_DIR
+          nohup $JAVA_CMD > app.log 2>&1 &
+          echo "Application successfully started using Spring Boot."
           EOF
