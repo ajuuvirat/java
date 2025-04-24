@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: cocaptain/cc-java-dev
-      CONTAINER_NAME: cc-java-dev
+    
+      CONTAINER_NAME: ajuua/sampletest
       SERVER_USER: root
       SERVER_HOST: 142.93.221.82
 
