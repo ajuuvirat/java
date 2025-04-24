@@ -11,7 +11,7 @@ jobs:
 
     env:
       IMAGE_NAME: ajuua/sampletest
-      CONTAINER_NAME: ajuua/sampletest
+      CONTAINER_NAME: ajuua
       SERVER_USER: root
       SERVER_HOST: 139.59.32.33
 
