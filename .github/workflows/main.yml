@@ -13,7 +13,7 @@ jobs:
       IMAGE_NAME: ajuua/sampletest
       CONTAINER_NAME: ajuua/sampletest
       SERVER_USER: root
-      SERVER_HOST: 142.93.221.82
+      SERVER_HOST: 139.59.32.33
 
     steps:
       - name: Checkout code
